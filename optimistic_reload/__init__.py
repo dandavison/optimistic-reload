@@ -3,7 +3,6 @@ import importlib
 import inspect
 import sys
 from collections import defaultdict
-from pprint import pprint
 
 
 __original_import__ = builtins.__import__
