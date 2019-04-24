@@ -10,9 +10,11 @@ class Package:
         self.write(files)
 
     def write(self, files):
-        for path, contents in files.items():
-            with open(self.root_dir / path, 'w') as fp:
-                fp.write(contents)
+        for relative_path, contents in files.items():
+            absolute_path = self.root_dir / relative_path
+            absolute_path.parent.mkdir(parents=True, exist_ok=True)
+            (absolute_path.parent / '__init__.py').touch()
+            absolute_path.write_text(contents)
 
     def activate(self):
         assert self.root_dir not in sys.path, 'Already active'

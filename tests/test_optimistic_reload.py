@@ -6,7 +6,6 @@ from .utils import Package
 
 def test_single_module(tmp_path):
     files = {
-        '__init__.py': '',
         'a.py': 'x = 1',
     }
     with Package(tmp_path, files) as package:
@@ -19,7 +18,6 @@ def test_single_module(tmp_path):
 
 def test_import_module(tmp_path):
     files = {
-        '__init__.py': '',
         'a.py': 'x = 1',
         'b.py': 'import a',
     }
@@ -33,7 +31,6 @@ def test_import_module(tmp_path):
 
 def test_import_object_from_module(tmp_path):
     files = {
-        '__init__.py': '',
         'a.py': 'x = 1',
         'b.py': 'from a import x',
     }
