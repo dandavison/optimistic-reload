@@ -1,6 +1,7 @@
 import sys
 from contextlib import contextmanager
 from pathlib import Path
+from shutil import rmtree
 
 
 class Package:
@@ -15,6 +16,12 @@ class Package:
             absolute_path.parent.mkdir(parents=True, exist_ok=True)
             (absolute_path.parent / '__init__.py').touch()
             absolute_path.write_text(contents)
+        # FIXME: without this, stale __pycache__ are being used
+        self.ensure_stale_bytecode_is_not_used()
+
+    def ensure_stale_bytecode_is_not_used(self):
+        for pycache in self.root_dir.glob('**/__pycache__'):
+            rmtree(pycache)
 
     def activate(self):
         assert self.root_dir not in sys.path, 'Already active'
