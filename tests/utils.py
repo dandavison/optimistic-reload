@@ -5,8 +5,8 @@ from pathlib import Path
 
 class Package:
 
-    def __init__(self, root_dir, files):
-        self.root_dir = root_dir
+    def __init__(self, tmp_path_factory, files):
+        self.root_dir = tmp_path_factory.mktemp('')
         self.write(files)
 
     def write(self, files):
