@@ -47,3 +47,17 @@ def test_import_object_from_module(tmp_path_factory):
             assert b.x == 2
 
 
+def test_import_object_from_deeply_nested_module(tmp_path_factory):
+    files = {
+        'a.py': 'x = 1',
+        'b.py': 'from a import x',
+        'c.py': 'from b import x',
+        'd.py': 'from c import x',
+    }
+    with patch('builtins.__import__', import_and_build_dependency_graph):
+        with Package(tmp_path_factory, files) as package:
+            import d
+            assert d.x == 1
+            package.write({'a.py': 'x = 2'})
+            reload('a')
+            assert d.x == 2
