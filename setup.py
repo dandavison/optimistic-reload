@@ -22,4 +22,7 @@ setup(
     install_requires=[
         'networkx',
     ],
+    tests_requires=[
+        'pytest',
+    ],
 )

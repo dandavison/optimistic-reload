@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/dandavison/optimistic-reload.svg?branch=master)](https://travis-ci.com/dandavison/optimistic-reload)
+
 Suppose you're working on backend code for a web application. You're running the development server locally, you edit some of the code files, and you want the next response from the server to reflect the changes you made.
 
 Python web frameworks such as [Django](https://github.com/django/django/blob/master/django/utils/autoreload.py#L211) and [Flask](https://github.com/pallets/werkzeug/blob/master/src/werkzeug/_reloader.py#L176) respond to on-disk changes by restarting the server process. This is reasonable: re-importing the whole codebase from scratch guarantees that the state of the new server process matches the code.
