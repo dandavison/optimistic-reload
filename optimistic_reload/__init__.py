@@ -19,9 +19,14 @@ _dependency_graph = nx.DiGraph()
 def import_and_build_dependency_graph(name, *args, **kwargs):
     child_module = __original_import__(name, *args, **kwargs)
     child_module_name = child_module.__name__
-    caller = inspect.currentframe().f_back
-    parent_module_name = caller.f_globals.get('__name__')
-    _dependency_graph.add_edge(parent_module_name, child_module_name)
+    parent_frame = inspect.currentframe().f_back
+    # Do not add edges for run time imports in function bodies.
+    # - For an import in a function, frame.f_code.co_name is the function name (or '<lambda>').
+    # - For a top-level import, frame.f_code.co_name is '<module>'.
+    # TODO: Is there a more official API to use?
+    if parent_frame.f_code.co_name == '<module>':
+        parent_module_name = parent_frame.f_globals.get('__name__')
+        _dependency_graph.add_edge(parent_module_name, child_module_name)
     return child_module
 
 
