@@ -28,7 +28,15 @@ def import_and_build_dependency_graph(name, *args, **kwargs):
 def _ancestors_in_topological_sort_order(module_name):
     ancestral_module_names = ancestors(_dependency_graph, module_name)
     subgraph = _dependency_graph.subgraph({module_name} | ancestral_module_names)
-    return reversed(list(topological_sort(subgraph)))
+    try:
+        return list(reversed(list(topological_sort(subgraph))))
+    except Exception as ex:
+        from networkx.drawing.nx_pydot import write_dot
+        file = '/tmp/optimistic-reload.dot'
+        write_dot(subgraph, file)
+        print(red(f'optimistic-reload: error: graph written to: {file}'))
+        raise
+
 
 
 def reload(module_name):
