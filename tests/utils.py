@@ -2,6 +2,7 @@ import sys
 from contextlib import contextmanager
 from pathlib import Path
 from shutil import rmtree
+from textwrap import dedent
 
 
 class Package:
@@ -15,7 +16,7 @@ class Package:
             absolute_path = self.root_dir / relative_path
             absolute_path.parent.mkdir(parents=True, exist_ok=True)
             (absolute_path.parent / '__init__.py').touch()
-            absolute_path.write_text(contents)
+            absolute_path.write_text(dedent(contents))
         # FIXME: without this, stale __pycache__ are being used
         self.ensure_stale_bytecode_is_not_used()
 
