@@ -22,9 +22,13 @@ def test_single_module(tmp_path_factory):
 
 def test_single_module_from(tmp_path_factory):
     files = {
-        'a/aa.py': 'import a.b; x = 1',  # TODO make this test pass without the additional import
-        'a/b.py': '',
+        'a/aa.py': 'x = 1',
     }
+    # TODO: this passes
+    # files = {
+    #     'a.py': 'import a.b; x = 1',
+    #     'b.py': '',
+    # }
     with patch('builtins.__import__', import_and_build_dependency_graph):
         with Package(tmp_path_factory, files) as package:
             from a import aa
