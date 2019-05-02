@@ -18,6 +18,7 @@ def test_single_module(tmp_path_factory):
             package.write({'a.py': 'x = 2'})
             reload('a')
             assert a.x == 2
+    _dependency_graph.clear()
 
 
 def test_single_module_from(tmp_path_factory):
@@ -36,6 +37,7 @@ def test_single_module_from(tmp_path_factory):
             package.write({'a/aa.py': 'x = 2'})
             reload('a.aa')
             assert aa.x == 2
+    _dependency_graph.clear()
 
 
 def test_import_module(tmp_path_factory):
@@ -50,6 +52,7 @@ def test_import_module(tmp_path_factory):
             package.write({'a.py': 'x = 2'})
             reload('a')
             assert b.a.x == 2
+    _dependency_graph.clear()
 
 
 def test_import_object_from_module(tmp_path_factory):
@@ -64,6 +67,7 @@ def test_import_object_from_module(tmp_path_factory):
             package.write({'a.py': 'x = 2'})
             reload('a')
             assert b.x == 2
+    _dependency_graph.clear()
 
 
 def test_import_object_from_deeply_nested_module(tmp_path_factory):
@@ -80,6 +84,7 @@ def test_import_object_from_deeply_nested_module(tmp_path_factory):
             package.write({'a.py': 'x = 2'})
             reload('a')
             assert d.x == 2
+    _dependency_graph.clear()
 
 
 def test_run_time_imports_do_not_add_edges_to_graph(tmp_path_factory):
@@ -96,3 +101,4 @@ def test_run_time_imports_do_not_add_edges_to_graph(tmp_path_factory):
             import b
             b.f()
             assert not _dependency_graph.has_edge('b', 'a')
+    _dependency_graph.clear()
