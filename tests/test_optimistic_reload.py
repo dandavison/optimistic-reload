@@ -54,6 +54,21 @@ def test_import_object_from_module(tmp_path_factory):
         assert b.x == 2
 
 
+def test_import_module_from_module(tmp_path_factory):
+    files = {
+        'a/a.py': 'x = 1',
+        'b.py': 'from a import a',
+    }
+    with _test_context(tmp_path_factory, files) as ctx:
+        import b
+        assert _dependency_graph.has_edge('b', 'a')
+        assert _dependency_graph.has_edge('a', 'a.a')
+        assert b.a.x == 1
+        ctx.package.write({'a/a.py': 'x = 2'})
+        reload('a.a')
+        assert b.a.x == 2
+
+
 def test_import_object_from_deeply_nested_module(tmp_path_factory):
     files = {
         'a.py': 'x = 1',

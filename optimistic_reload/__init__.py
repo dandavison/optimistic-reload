@@ -16,10 +16,13 @@ __original_import__ = builtins.__import__
 _dependency_graph = nx.DiGraph()
 
 
-def import_and_build_dependency_graph(name, *args, **kwargs):
-    module = __original_import__(name, *args, **kwargs)
+def import_and_build_dependency_graph(name, globals=None, locals=None, fromlist=(), level=0):
+    module = (
+        __original_import__(name, globals=globals, locals=locals, fromlist=fromlist, level=level))
     parent_frame = inspect.currentframe().f_back
     _add_edge(parent_frame, name)
+    if fromlist:
+        _add_fromlist_edges(name, fromlist, module)
     return module
 
 
@@ -43,6 +46,24 @@ def _add_edge(parent_frame, child_module_name):
                                         parent_file_name.endswith('test_optimistic_reload.py'))
     if parent_is_module or parent_is_function_in_test_suite:
         _dependency_graph.add_edge(parent_module_name, child_module_name)
+
+
+def _add_fromlist_edges(module_name, fromlist, module):
+    """
+    Add edges for child modules imported as `from parent_module import child_module`.
+
+    In cpython, such a child module is imported directly (via _call_with_frames_removed), bypassing
+    __import__. Therefore we have to add edges for these imports in addition to adding edges
+    corresponding to __import__ calls.
+
+    See _handle_fromlist
+    https://github.com/python/cpython/blob/0d5864fa07ab4f03188/Lib/importlib/_bootstrap.py#L1017
+    """
+    for imported_name in fromlist:
+        if not hasattr(module, imported_name) or inspect.ismodule(getattr(module, imported_name)):
+            # If the attribute didn't exist, we assume it's a module, as in _handle_fromlist.
+            imported_module_name = f'{module.__name__}.{imported_name}'
+            _dependency_graph.add_edge(module_name, imported_module_name)
 
 
 def _ancestors_in_topological_sort_order(module_name):
