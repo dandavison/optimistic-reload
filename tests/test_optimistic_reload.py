@@ -9,15 +9,15 @@ from .utils import Package
 
 def test_single_module(tmp_path_factory):
     files = {
-        'a/a.py': 'x = 1',
+        'a.py': 'x = 1',
     }
     with patch('builtins.__import__', import_and_build_dependency_graph):
         with Package(tmp_path_factory, files) as package:
-            import a.a
-            assert a.a.x == 1
-            package.write({'a/a.py': 'x = 2'})
-            reload('a.a')
-            assert a.a.x == 2
+            import a
+            assert a.x == 1
+            package.write({'a.py': 'x = 2'})
+            reload('a')
+            assert a.x == 2
 
 
 def test_single_module_from(tmp_path_factory):
@@ -36,59 +36,59 @@ def test_single_module_from(tmp_path_factory):
 
 def test_import_module(tmp_path_factory):
     files = {
-        'a/a.py': 'x = 1',
-        'a/b.py': 'import a.a',
+        'a.py': 'x = 1',
+        'b.py': 'import a',
     }
     with patch('builtins.__import__', import_and_build_dependency_graph):
         with Package(tmp_path_factory, files) as package:
-            import a.b
-            assert a.b.a.x == 1
-            package.write({'a/a.py': 'x = 2'})
-            reload('a.a')
-            assert a.b.a.x == 2
+            import b
+            assert b.a.x == 1
+            package.write({'a.py': 'x = 2'})
+            reload('a')
+            assert b.a.x == 2
 
 
 def test_import_object_from_module(tmp_path_factory):
     files = {
-        'a/a.py': 'x = 1',
-        'a/b.py': 'from a.a import x',
+        'a.py': 'x = 1',
+        'b.py': 'from a import x',
     }
     with patch('builtins.__import__', import_and_build_dependency_graph):
         with Package(tmp_path_factory, files) as package:
-            import a.b
-            assert a.b.x == 1
-            package.write({'a/a.py': 'x = 2'})
-            reload('a.a')
-            assert a.b.x == 2
+            import b
+            assert b.x == 1
+            package.write({'a.py': 'x = 2'})
+            reload('a')
+            assert b.x == 2
 
 
 def test_import_object_from_deeply_nested_module(tmp_path_factory):
     files = {
-        'a/a.py': 'x = 1',
-        'a/b.py': 'from a.a import x',
-        'a/c.py': 'from a.b import x',
-        'a/d.py': 'from a.c import x',
+        'a.py': 'x = 1',
+        'b.py': 'from a import x',
+        'c.py': 'from b import x',
+        'd.py': 'from c import x',
     }
     with patch('builtins.__import__', import_and_build_dependency_graph):
         with Package(tmp_path_factory, files) as package:
-            import a.d
-            assert a.d.x == 1
-            package.write({'a/a.py': 'x = 2'})
-            reload('a.a')
-            assert a.d.x == 2
+            import d
+            assert d.x == 1
+            package.write({'a.py': 'x = 2'})
+            reload('a')
+            assert d.x == 2
 
 
 def test_run_time_imports_do_not_add_edges_to_graph(tmp_path_factory):
     files = {
-        'a/a.py': 'x = 1',
-        'a/b.py': (
+        'a.py': 'x = 1',
+        'b.py': (
             '''
             def f():
-                import a.a
+                import a
             '''),
     }
     with patch('builtins.__import__', import_and_build_dependency_graph):
         with Package(tmp_path_factory, files) as package:
-            import a.b
-            a.b.f()
-            assert not _dependency_graph.has_edge('a.b', 'a.a')
+            import b
+            b.f()
+            assert not _dependency_graph.has_edge('b', 'a')
