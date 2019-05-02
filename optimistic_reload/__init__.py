@@ -30,7 +30,10 @@ def _add_edge(parent_frame, child_module_name):
     # TODO: Is there a more official API to use?
     parent_module_name = parent_frame.f_globals.get('__name__')
     parent_is_module = parent_frame.f_code.co_name == '<module>'
-    if parent_is_module:
+    parent_file_name = parent_frame.f_globals.get('__file__')
+    parent_is_function_in_test_suite = (parent_file_name and
+                                        parent_file_name.endswith('test_optimistic_reload.py'))
+    if parent_is_module or parent_is_function_in_test_suite:
         _dependency_graph.add_edge(parent_module_name, child_module_name)
 
 
