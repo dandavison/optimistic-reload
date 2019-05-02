@@ -1,8 +1,12 @@
 import sys
 from contextlib import contextmanager
-from pathlib import Path
+from dataclasses import dataclass
 from shutil import rmtree
 from textwrap import dedent
+from unittest.mock import patch
+
+from optimistic_reload import _dependency_graph
+from optimistic_reload import import_and_build_dependency_graph
 
 
 class Package:
@@ -38,3 +42,16 @@ class Package:
 
     __enter__ = activate
     __exit__ = deactivate
+
+
+@dataclass
+class TestContext:
+    package: Package
+
+
+@contextmanager
+def _test_context(tmp_path_factory, files):
+    with patch('builtins.__import__', import_and_build_dependency_graph):
+        with Package(tmp_path_factory, files) as package:
+            yield TestContext(package)
+    _dependency_graph.clear()
