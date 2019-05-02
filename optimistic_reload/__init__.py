@@ -17,8 +17,7 @@ _dependency_graph = nx.DiGraph()
 
 
 def import_and_build_dependency_graph(name, *args, **kwargs):
-    child_module = __original_import__(name, *args, **kwargs)
-    child_module_name = child_module.__name__
+    module = __original_import__(name, *args, **kwargs)
     parent_frame = inspect.currentframe().f_back
     # Do not add edges for run time imports in function bodies.
     # - For an import in a function, frame.f_code.co_name is the function name (or '<lambda>').
@@ -26,8 +25,9 @@ def import_and_build_dependency_graph(name, *args, **kwargs):
     # TODO: Is there a more official API to use?
     if parent_frame.f_code.co_name == '<module>':
         parent_module_name = parent_frame.f_globals.get('__name__')
-        _dependency_graph.add_edge(parent_module_name, child_module_name)
-    return child_module
+        _dependency_graph.add_edge(parent_module_name, name)
+
+    return module
 
 
 def _ancestors_in_topological_sort_order(module_name):
