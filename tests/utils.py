@@ -1,6 +1,6 @@
 import sys
+from collections import namedtuple
 from contextlib import contextmanager
-from dataclasses import dataclass
 from shutil import rmtree
 from textwrap import dedent
 from unittest.mock import patch
@@ -44,9 +44,7 @@ class Package:
     __exit__ = deactivate
 
 
-@dataclass
-class TestContext:
-    package: Package
+TestContext = namedtuple('TestContext', ['package'])
 
 
 @contextmanager
