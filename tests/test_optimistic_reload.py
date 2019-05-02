@@ -20,6 +20,20 @@ def test_single_module(tmp_path_factory):
             assert a.a.x == 2
 
 
+def test_single_module_from(tmp_path_factory):
+    files = {
+        'a/aa.py': 'import a.b; x = 1',  # TODO make this test pass without the additional import
+        'a/b.py': '',
+    }
+    with patch('builtins.__import__', import_and_build_dependency_graph):
+        with Package(tmp_path_factory, files) as package:
+            from a import aa
+            assert aa.x == 1
+            package.write({'a/aa.py': 'x = 2'})
+            reload('a.aa')
+            assert aa.x == 2
+
+
 def test_import_module(tmp_path_factory):
     files = {
         'a/a.py': 'x = 1',
