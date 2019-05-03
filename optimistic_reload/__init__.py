@@ -5,6 +5,7 @@ import sys
 
 import networkx as nx
 from networkx.algorithms import ancestors
+from networkx.algorithms import find_cycle
 from networkx.algorithms import topological_sort
 
 from .utils import blue
@@ -68,8 +69,20 @@ def _add_fromlist_edges(module_name, fromlist, module):
 
 def _ancestors_in_topological_sort_order(module_name):
     ancestral_module_names = ancestors(_dependency_graph, module_name)
-    subgraph = _dependency_graph.subgraph({module_name} | ancestral_module_names)
-    return list(reversed(list(topological_sort(subgraph))))
+    subgraph = _dependency_graph.subgraph(ancestral_module_names)
+    try:
+        sorted_nodes = topological_sort(subgraph)
+    except nx.NetworkXUnfeasible as ex:
+        try:
+            cycle = find_cycle(subgraph)
+        except Exception as ex:
+            print(red(f'find_cycle: error: {ex.__class__.__name__}({ex})'), file=sys.stderr)
+        else:
+            print(red(f'cycle: {cycle}'))
+        finally:
+            raise
+    else:
+        return list(reversed(list(sorted_nodes)))
 
 
 def reload(module_name):
