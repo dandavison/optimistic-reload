@@ -61,7 +61,6 @@ def test_import_module_from_module(tmp_path_factory):
     }
     with _test_context(tmp_path_factory, files) as ctx:
         import b
-        assert _dependency_graph.has_edge('b', 'a')
         assert _dependency_graph.has_edge('a', 'a.a')
         assert b.a.x == 1
         ctx.package.write({'a/a.py': 'x = 2'})

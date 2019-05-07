@@ -21,9 +21,10 @@ def import_and_build_dependency_graph(name, globals=None, locals=None, fromlist=
     module = (
         __original_import__(name, globals=globals, locals=locals, fromlist=fromlist, level=level))
     parent_frame = inspect.currentframe().f_back
-    _add_edge(parent_frame, name)
     if fromlist:
-        _add_fromlist_edges(name, fromlist, module)
+        _add_fromlist_edges(name, fromlist, module, parent_frame)
+    else:
+        _add_edge(parent_frame, name)
     return module
 
 
@@ -49,7 +50,7 @@ def _add_edge(parent_frame, child_module_name):
         _dependency_graph.add_edge(parent_module_name, child_module_name)
 
 
-def _add_fromlist_edges(module_name, fromlist, module):
+def _add_fromlist_edges(module_name, fromlist, module, parent_frame):
     """
     Add edges for child modules imported as `from parent_module import child_module`.
 
@@ -65,6 +66,8 @@ def _add_fromlist_edges(module_name, fromlist, module):
             # If the attribute didn't exist, we assume it's a module, as in _handle_fromlist.
             imported_module_name = f'{module.__name__}.{imported_name}'
             _dependency_graph.add_edge(module_name, imported_module_name)
+        else:
+            _add_edge(parent_frame, module_name)
 
 
 def _ancestors_in_topological_sort_order(module_name):
