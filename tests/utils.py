@@ -53,3 +53,8 @@ def _test_context(tmp_path_factory, files):
         with Package(tmp_path_factory, files) as package:
             yield TestContext(package)
     _dependency_graph.clear()
+
+
+def write_dot(graph, file):
+    from networkx.drawing import nx_pydot
+    nx_pydot.write_dot(graph, file)
