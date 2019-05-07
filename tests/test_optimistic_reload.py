@@ -97,3 +97,15 @@ def test_run_time_imports_do_not_add_edges_to_graph(tmp_path_factory):
         import b
         b.f()
         assert not _dependency_graph.has_edge('b', 'a')
+
+
+def test_non_circular_import(tmp_path_factory):
+    files = {
+        'a/a.py': 'from a import b',
+        'a/b.py': '',
+        'b.py': 'from a import a',
+    }
+    with _test_context(tmp_path_factory, files) as ctx:
+        import a.a
+        import b
+        assert reload('a.b')
