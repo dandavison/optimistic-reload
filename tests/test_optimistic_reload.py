@@ -12,7 +12,7 @@ def test_single_module(tmp_path_factory):
         import a
         assert a.x == 1
         ctx.package.write({'a.py': 'x = 2'})
-        reload('a')
+        assert reload('a')
         assert a.x == 2
 
 
@@ -24,7 +24,7 @@ def test_single_module_from(tmp_path_factory):
         from a import aa
         assert aa.x == 1
         ctx.package.write({'a/aa.py': 'x = 2'})
-        reload('a.aa')
+        assert reload('a.aa')
         assert aa.x == 2
 
 
@@ -37,7 +37,7 @@ def test_import_module(tmp_path_factory):
         import b
         assert b.a.x == 1
         ctx.package.write({'a.py': 'x = 2'})
-        reload('a')
+        assert reload('a')
         assert b.a.x == 2
 
 
@@ -50,7 +50,7 @@ def test_import_object_from_module(tmp_path_factory):
         import b
         assert b.x == 1
         ctx.package.write({'a.py': 'x = 2'})
-        reload('a')
+        assert reload('a')
         assert b.x == 2
 
 
@@ -65,7 +65,7 @@ def test_import_module_from_module(tmp_path_factory):
         assert _dependency_graph.has_edge('a', 'a.a')
         assert b.a.x == 1
         ctx.package.write({'a/a.py': 'x = 2'})
-        reload('a.a')
+        assert reload('a.a')
         assert b.a.x == 2
 
 
@@ -80,7 +80,7 @@ def test_import_object_from_deeply_nested_module(tmp_path_factory):
         import d
         assert d.x == 1
         ctx.package.write({'a.py': 'x = 2'})
-        reload('a')
+        assert reload('a')
         assert d.x == 2
 
 
