@@ -89,7 +89,14 @@ def _ancestors_in_topological_sort_order(module_name):
 
 
 def reload(module_name):
-    module = importlib.reload(sys.modules[module_name])
+    try:
+        module = importlib.reload(sys.modules[module_name])
+    except Exception as ex:
+        print(red(f'optimistic-reload: '
+                  f'error while attempting reload({module_name}): '
+                  f'{ex.__class__.__name__}({ex})'), file=sys.stderr)
+        return None
+
     if module_name not in _dependency_graph:
         print(red(f'optimistic-reload: error: not in graph: {module_name}'), file=sys.stderr)
         return None
