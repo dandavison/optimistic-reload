@@ -18,6 +18,22 @@ _dependency_graph = nx.DiGraph()
 
 
 def import_and_build_dependency_graph(name, globals=None, locals=None, fromlist=(), level=0):
+    """
+    Replacement for __import__ that additionally builds a dependency graph.
+
+    Cases:
+
+    1. Suppose that module b contains the statement `import a`. This results in a call like
+       __import__(name='a', fromlist=()). We add the edge (b, a) to the graph.
+
+    2. Suppose that module b contains the statement `from a import x`, where x is a variable in
+       module a. This results in a call like: __import__(name='a', fromlist=('x',)). Again we add
+       the edge (b, a) to the graph.
+
+    3. Suppose that module b contains the statement `from a import a`, where a is a module in
+       package a. This results in a call like: __import__(name='a', fromlist=('a',)). This time we
+       add the edge (b, a.a) to the graph. We do not add the edge (b, a) to the graph.
+    """
     module = (
         __original_import__(name, globals=globals, locals=locals, fromlist=fromlist, level=level))
     parent_frame = inspect.currentframe().f_back
