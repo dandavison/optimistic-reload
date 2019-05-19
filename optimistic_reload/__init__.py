@@ -64,8 +64,9 @@ def _add_fromlist_edges(module_name, fromlist, module, parent_frame):
     for imported_name in fromlist:
         if not hasattr(module, imported_name) or inspect.ismodule(getattr(module, imported_name)):
             # If the attribute didn't exist, we assume it's a module, as in _handle_fromlist.
+            parent_module_name = parent_frame.f_globals.get('__name__')
             imported_module_name = f'{module.__name__}.{imported_name}'
-            _dependency_graph.add_edge(module_name, imported_module_name)
+            _dependency_graph.add_edge(parent_module_name, imported_module_name)
         else:
             _add_edge(parent_frame, module_name)
 
