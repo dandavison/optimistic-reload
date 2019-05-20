@@ -1,5 +1,4 @@
 import sys
-from collections import namedtuple
 from contextlib import contextmanager
 from shutil import rmtree
 from textwrap import dedent
@@ -44,14 +43,11 @@ class Package:
     __exit__ = deactivate
 
 
-TestContext = namedtuple('TestContext', ['package'])
-
-
 @contextmanager
-def _test_context(tmp_path_factory, files):
+def _test_package(tmp_path_factory, files):
     with patch('builtins.__import__', import_and_build_dependency_graph):
         with Package(tmp_path_factory, files) as package:
-            yield TestContext(package)
+            yield package
     _dependency_graph.clear()
 
 
