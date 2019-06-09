@@ -62,9 +62,10 @@ def _add_edge(parent_frame, child_module_name):
     parent_module_name = parent_frame.f_globals.get('__name__')
     parent_is_module = parent_frame.f_code.co_name == '<module>'
     parent_file_name = parent_frame.f_globals.get('__file__')
+    parent_is_module_with_file = parent_is_module and parent_file_name
     parent_is_function_in_test_suite = (parent_file_name and
                                         parent_file_name.endswith('test_optimistic_reload.py'))
-    if parent_is_module or parent_is_function_in_test_suite:
+    if parent_is_module_with_file or parent_is_function_in_test_suite:
         _dependency_graph.add_edge(parent_module_name, child_module_name)
 
 
@@ -83,8 +84,11 @@ def _add_fromlist_edges(module_name, fromlist, module, parent_frame):
         if not hasattr(module, imported_name) or inspect.ismodule(getattr(module, imported_name)):
             # If the attribute didn't exist, we assume it's a module, as in _handle_fromlist.
             parent_module_name = parent_frame.f_globals.get('__name__')
+            parent_file_name = parent_frame.f_globals.get('__file__')
             imported_module_name = f'{module.__name__}.{imported_name}'
-            _dependency_graph.add_edge(parent_module_name, imported_module_name)
+            if parent_file_name:
+                # TODO: do we need to include parent_is_function_in_test_suite here?
+                _dependency_graph.add_edge(parent_module_name, imported_module_name)
         else:
             _add_edge(parent_frame, module_name)
 
