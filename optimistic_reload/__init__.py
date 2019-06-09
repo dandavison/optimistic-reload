@@ -154,6 +154,12 @@ def reload(module_name):
             return None
 
     print(green(f'optimistic-reload: reloaded ancestors of {module_name}\n'))
+    models_modules = [mod for mod in ancestral_module_names + [module_name]
+                      if mod.split('.')[-1] == 'models']
+    if models_modules:
+        log_error(f'models.py present: {sorted(models_modules)}', notify=True)
+        return None
+
     return module
 
 
