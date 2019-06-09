@@ -117,6 +117,10 @@ last_reloaded = datetime.now() - 2 * RELOAD_PERIOD
 
 
 def reload(module_name):
+    # TODO: This should be done by the django-specific patches.
+    from django.urls.base import clear_url_caches
+    clear_url_caches()
+
     global last_reloaded, RELOAD_PERIOD
     now = datetime.now()
     if now - last_reloaded < RELOAD_PERIOD:
