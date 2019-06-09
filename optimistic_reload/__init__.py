@@ -155,3 +155,13 @@ def reload(module_name):
 
     print(green(f'optimistic-reload: reloaded ancestors of {module_name}\n'))
     return module
+
+
+def reload_file(file_path):
+    module_name = next((name for name, module in sys.modules.items()
+                        if hasattr(module, '__file__')
+                        and module.__file__ == file_path), None)
+    if module_name:
+        return reload(module_name)
+    else:
+        log_error(f'File {file_path} does not match any module in sys.modules')
