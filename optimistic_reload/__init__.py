@@ -11,6 +11,7 @@ from networkx.algorithms import topological_sort
 
 from .utils import blue
 from .utils import green
+from .utils import log
 from .utils import log_error
 from .utils import red
 
@@ -104,7 +105,7 @@ def _ancestors_in_topological_sort_order(module_name):
         except Exception as ex:
             log_error(f'find_cycle: error: {ex.__class__.__name__}({ex})')
         else:
-            print(red(f'cycle: {cycle}'))
+            log_error(f'cycle: {cycle}')
         finally:
             raise
     else:
@@ -143,21 +144,24 @@ def reload(module_name):
         log_error(f'optimistic-reload: error: {ex.__class__.__name__}({ex})')
         return None
 
-    print(blue(f'optimistic-reload: reloading {module_name} '
-               f'and ancestors: {ancestral_module_names}'))
+    log(f'optimistic-reload: reloading {module_name} '
+        f'and ancestors: {ancestral_module_names}', notify=True)
 
     for ancestral_module_name in ancestral_module_names:
         try:
             importlib.reload(sys.modules[ancestral_module_name])
         except Exception as ex:
-            log_error(f'optimistic-reload: error: not in graph: {module_name}')
+            log_error(f'optimistic-reload: '
+                      f'error while attempting reload({module_name}): '
+                      f'{ex.__class__.__name__}({ex})')
             return None
 
-    print(green(f'optimistic-reload: reloaded ancestors of {module_name}\n'))
+    log(f'Reloaded {len(ancestral_module_names)} ancestors of {module_name}', notify=True)
+
     models_modules = [mod for mod in ancestral_module_names + [module_name]
                       if mod.split('.')[-1] == 'models']
     if models_modules:
-        log_error(f'models.py present: {sorted(models_modules)}', notify=True)
+        log(f'models.py present: {sorted(models_modules)}', notify=True)
         return None
 
     return module
