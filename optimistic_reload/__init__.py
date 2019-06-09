@@ -117,7 +117,6 @@ last_reloaded = datetime.now() - 2 * RELOAD_PERIOD
 
 
 def reload(module_name):
-
     global last_reloaded, RELOAD_PERIOD
     now = datetime.now()
     if now - last_reloaded < RELOAD_PERIOD:
