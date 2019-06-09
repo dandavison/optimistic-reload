@@ -2,6 +2,7 @@ import builtins
 import importlib
 import inspect
 import sys
+from datetime import datetime, timedelta
 
 import networkx as nx
 from networkx.algorithms import ancestors
@@ -106,7 +107,20 @@ def _ancestors_in_topological_sort_order(module_name):
         return list(reversed(list(sorted_nodes)))
 
 
+RELOAD_PERIOD = timedelta(seconds=15)
+last_reloaded = datetime.now() - 2 * RELOAD_PERIOD
+
+
 def reload(module_name):
+
+    global last_reloaded, RELOAD_PERIOD
+    now = datetime.now()
+    if now - last_reloaded < RELOAD_PERIOD:
+        log('refusing to reload again')
+        return True
+    else:
+        last_reloaded = now
+
     try:
         module = importlib.reload(sys.modules[module_name])
     except Exception as ex:
