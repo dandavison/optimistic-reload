@@ -15,8 +15,8 @@ class RegexURLResolver(resolvers.RegexURLResolver):
     Modification of Django's RegexURLResolver to prevent retrieval of stale URLs from the cache
     that Django uses for `reverse`.
     """
-    # Methods on this class are modifications of implementations in Django 1.11.16 3d0344dc40.
 
+    # For `urlconf_module`:
     # (a) reload the module if it has already been imported
     # (b) remove the cached property decorator
     @property
@@ -30,22 +30,8 @@ class RegexURLResolver(resolvers.RegexURLResolver):
         else:
             return self.urlconf_name
 
-    # Copied from Django 1.11.16 3d0344dc40 in order to remove the cached property decorator
-    @property
-    def url_patterns(self):
-        # urlconf_module might be a valid set of patterns, so we default to it
-        patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
-        try:
-            iter(patterns)
-        except TypeError:
-            from django.core.exceptions import ImproperlyConfigured
-            msg = (
-                "The included URLconf '{name}' does not appear to have any "
-                "patterns in it. If you see valid patterns in the file then "
-                "the issue is probably caused by a circular import."
-            )
-            raise ImproperlyConfigured(msg.format(name=self.urlconf_name))
-        return patterns
+    # Replace `cached_property` with `property` decorator on `url_patterns`
+    url_patterns = property(resolvers.RegexURLResolver.url_patterns.func)
 
 
 objects_to_patch = [
